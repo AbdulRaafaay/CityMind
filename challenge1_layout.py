@@ -71,6 +71,7 @@ class CityLayoutPlanner:
         self.domains: Dict[int, Set[str]] = {
             n.id: set(LOCATION_TYPES) | {LOC_EMPTY} for n in graph.all_nodes()
         }
+        self._total_backtracks = 0
 
     # ------------------------------------------------------------------
     # Public entry point
@@ -165,8 +166,9 @@ class CityLayoutPlanner:
     # ------------------------------------------------------------------
 
     def _backtrack(self, assignment: Dict[int, str], iterations: int,
-                   max_iterations: int = 50_000) -> Optional[Dict[int, str]]:
-        if iterations > max_iterations:
+                   max_iterations: int = 5_000) -> Optional[Dict[int, str]]:
+        self._total_backtracks += 1
+        if self._total_backtracks > max_iterations:
             return None
         if len(assignment) == len(self.domains):
             if self._global_constraints_ok(assignment):

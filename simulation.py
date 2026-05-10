@@ -198,7 +198,12 @@ class CitySimulation:
     # ------------------------------------------------------------------
 
     def _block_random_edges(self, step: int) -> bool:
-        """Block 0-2 random unblocked, in-use edges this step."""
+        """Block 0-2 random unblocked, in-use edges this step, and clear old blocks."""
+        # Clear floods older than 3 steps
+        for u, v, edge in self.graph.all_edges():
+            if edge.blocked and getattr(edge, "flash_until_step", 0) < step - 2:
+                self.graph.unblock_edge(u, v)
+
         candidates = [
             (u, v) for u, v, edge in self.graph.all_edges()
             if not edge.blocked
@@ -230,9 +235,7 @@ class CitySimulation:
         path, cost = self.router.a_star(position, target)
         if not path or cost == math.inf:
             self._emit("route",
-                       f"Civilian {target} unreachable - skipping. "
-                       f"Remaining: {self.state.civilians[1:]}.")
-            self.state.civilians.pop(0)
+                       f"Civilian {target} unreachable - waiting for floods to clear.")
             return
 
         if len(path) <= 1:
