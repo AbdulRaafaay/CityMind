@@ -20,7 +20,7 @@ class PillToggle(tk.Frame):
 
     def __init__(self, master, label: str, initial: bool = True,
                  on_toggle: Optional[Callable[[bool], None]] = None,
-                 width: int = 158, height: int = 34,
+                 width: int = 180, height: int = 34,
                  bg: str = theme.BG_BASE, **kwargs):
         super().__init__(master, bg=bg, highlightthickness=0, bd=0, **kwargs)
         self._label = label

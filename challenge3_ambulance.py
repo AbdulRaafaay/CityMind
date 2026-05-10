@@ -50,6 +50,7 @@ class AmbulancePlanner:
         self.rng = random.Random(seed)
         self._candidate_pool = self._build_candidate_pool()
         self._residentials = [n.id for n in graph.all_nodes() if n.type == LOC_RESIDENTIAL]
+        self._cached_view: Optional[nx.Graph] = None
 
     def _build_candidate_pool(self) -> List[int]:
         """Any non-empty cell is a valid ambulance posting site."""
@@ -132,7 +133,9 @@ class AmbulancePlanner:
     # ------------------------------------------------------------------
 
     def _fitness(self, chromosome: Tuple[int, ...]) -> float:
-        weighted = self._weighted_view()
+        if self._cached_view is None:
+            self._cached_view = self._weighted_view()
+        weighted = self._cached_view
         ambulance_distances: Dict[int, Dict[int, float]] = {}
         for amb in chromosome:
             try:
