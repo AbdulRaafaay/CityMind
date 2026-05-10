@@ -173,7 +173,7 @@ class CityGridCanvas(tk.Canvas):
         # Ambulances - amber square markers.
         for amb in self.ambulance_positions:
             cx, cy = self._cell_centre(amb)
-            r = self._cell_size * 0.18
+            r = self._cell_size * 0.25
             self.create_rectangle(cx - r, cy - r, cx + r, cy + r,
                                   fill=theme.ALERT, outline="")
             self.create_text(cx, cy, text="A", fill=theme.BG_BASE,
@@ -182,14 +182,14 @@ class CityGridCanvas(tk.Canvas):
         # Civilians - pulse markers.
         for civ in self.civilians:
             cx, cy = self._cell_centre(civ)
-            r = self._cell_size * 0.2
+            r = self._cell_size * 0.25
             self.create_oval(cx - r, cy - r, cx + r, cy + r,
                              fill=theme.DANGER, outline=theme.TEXT_PRIMARY)
 
         # Medical team.
         if self.medical_team_position is not None:
             cx, cy = self._cell_centre(self.medical_team_position)
-            r = self._cell_size * 0.22
+            r = self._cell_size * 0.35
             self.create_oval(cx - r, cy - r, cx + r, cy + r,
                              fill=theme.GOOD, outline=theme.TEXT_PRIMARY,
                              width=1)

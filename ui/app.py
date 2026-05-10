@@ -230,10 +230,10 @@ class CityMindApp(tk.Tk):
                          LOC_INDUSTRIAL, LOC_POWER_PLANT, LOC_AMBULANCE_DEPOT):
             self._legend_chip(legend, LETTER_CODE[loc_type], loc_type,
                                 colour=theme.TYPE_BORDER[loc_type]).pack(
-                                    side="left", padx=(0, 16))
+                                    side="left", padx=(0, 8))
         self._legend_chip(legend, "—", "Road",
                             colour=theme.ACCENT_DIM).pack(side="left",
-                                                            padx=(0, 16))
+                                                            padx=(0, 8))
         self._legend_chip(legend, "---", "Blocked Road",
                             colour=theme.DANGER).pack(side="left")
 
@@ -242,8 +242,8 @@ class CityMindApp(tk.Tk):
         frame = tk.Frame(parent, bg=theme.BG_BASE)
         chip = tk.Label(frame, text=code, bg=theme.BG_PANEL_ALT,
                           fg=colour, font=theme.FONT_BODY_BOLD,
-                          padx=10, pady=2, width=4)
-        chip.pack(side="left", padx=(0, 6))
+                          padx=6, pady=2, width=3)
+        chip.pack(side="left", padx=(0, 4))
         tk.Label(frame, text=name, bg=theme.BG_BASE,
                   fg=theme.TEXT_DIM, font=theme.FONT_SMALL).pack(side="left")
         return frame
