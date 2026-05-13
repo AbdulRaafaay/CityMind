@@ -231,19 +231,19 @@ class CitySimulation:
         if position is None or not self.state.civilians:
             return
 
-        target = self.state.civilians[0]
-        path, cost = self.router.a_star(position, target)
-        if not path or cost == math.inf:
-            self._emit("route",
-                       f"Civilian {target} unreachable - waiting for floods to clear.")
+        target = self.router._nearest_unvisited(position, self.state.civilians)
+        if target is None:
+            self._emit("route", "All remaining civilians unreachable - waiting for floods to clear.")
             return
+
+        path, cost = self.router.a_star(position, target)
 
         if len(path) <= 1:
             # Already at the target.
+            self.state.civilians.remove(target)
             self._emit("rescue",
                        f"Civilian rescued at node {target}. "
-                       f"Remaining: {self.state.civilians[1:]}.")
-            self.state.civilians.pop(0)
+                       f"Remaining: {self.state.civilians}.")
             return
 
         next_node = path[1]
@@ -260,10 +260,10 @@ class CitySimulation:
                    f"Medical team {position}->{next_node} "
                    f"(towards civilian {target}).")
         if next_node == target:
+            self.state.civilians.remove(target)
             self._emit("rescue",
                        f"Civilian rescued at node {target}. "
-                       f"Remaining: {self.state.civilians[1:]}.")
-            self.state.civilians.pop(0)
+                       f"Remaining: {self.state.civilians}.")
 
     def _coverage_degraded(self) -> bool:
         """Check whether the ambulance worst-case has worsened enough to re-run GA."""
