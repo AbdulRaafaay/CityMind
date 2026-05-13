@@ -1,4 +1,4 @@
-from __future__ import annotations
+﻿from __future__ import annotations
 
 from dataclasses import dataclass
 from typing import Dict, List, Optional, Set, Tuple
@@ -25,8 +25,6 @@ class RoadNetworkBuilder:
         self.graph = graph
 
     def build(self) -> RoadNetworkResult:
-        # 1. Sort all candidate edges by base cost (ignoring crime risk for the
-        #    structural decision - that's a runtime cost factor, not a build cost).
         candidates = sorted(
             ((u, v, edge.base_cost) for u, v, edge in self.graph.all_edges()
              if not (self.graph.node(u).type == LOC_EMPTY
@@ -34,7 +32,6 @@ class RoadNetworkBuilder:
             key=lambda triple: triple[2],
         )
 
-        # 2. Kruskal's: add edges in cost order, skipping any that close a cycle.
         parent: Dict[int, int] = {}
         rank: Dict[int, int] = {}
         selected: Set[Tuple[int, int]] = set()
@@ -62,7 +59,6 @@ class RoadNetworkBuilder:
                 rank[ra] += 1
             return True
 
-        # Need V-1 selected edges for a spanning tree on V nodes.
         target_tree_size = len(relevant_nodes) - 1
         leftover_candidates: List[Tuple[int, int, float]] = []
 
@@ -78,8 +74,6 @@ class RoadNetworkBuilder:
             else:
                 leftover_candidates.append((u, v, cost))
 
-        # Fold any unprocessed candidates back into the leftover pool so the
-        # redundancy loop can consider them.
         already_seen = {self._normalise(u, v) for u, v, _ in leftover_candidates}
         for u, v, cost in candidates:
             key = self._normalise(u, v)
@@ -88,12 +82,7 @@ class RoadNetworkBuilder:
                 already_seen.add(key)
         leftover_candidates.sort(key=lambda triple: triple[2])
 
-        # 3. (We defer applying selection to the shared graph until after the
-        #    redundancy phase, because that phase may add or prune edges.)
 
-        # 4. Edge-disjoint redundancy. Phase 4a: add cheapest leftover edges
-        # until max-flow hits 2. Phase 4b: prune any redundant additions to
-        # avoid bloating the network with unnecessary roads.
         primary_h = self.graph.primary_hospital_id
         depot = self.graph.ambulance_depot_id
         extra_edges: List[Tuple[int, int, float]] = []
@@ -114,9 +103,6 @@ class RoadNetworkBuilder:
                 if flow >= 2:
                     break
 
-            # Pruning: any single edge whose removal still leaves flow>=2 was
-            # redundant. Iterate in reverse-cost order so we drop expensive
-            # ones first.
             for u, v, cost in sorted(extra_edges, key=lambda t: -t[2]):
                 key = self._normalise(u, v)
                 if key not in selected:
@@ -130,7 +116,6 @@ class RoadNetworkBuilder:
             total_cost += sum(cost for u, v, cost in extra_edges
                               if self._normalise(u, v) in selected)
 
-        # Apply final selection: only edges in `selected` are usable roads.
         for u, v, edge in self.graph.all_edges():
             edge.blocked = self._normalise(u, v) not in selected
         flow = self._edge_disjoint_count(primary_h, depot, selected)
@@ -142,9 +127,6 @@ class RoadNetworkBuilder:
             extra_edges_added=extra_added,
         )
 
-    # ------------------------------------------------------------------
-    # Helpers
-    # ------------------------------------------------------------------
 
     @staticmethod
     def _normalise(u: int, v: int) -> Tuple[int, int]:

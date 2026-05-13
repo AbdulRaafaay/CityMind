@@ -1,4 +1,4 @@
-from __future__ import annotations
+﻿from __future__ import annotations
 
 import random
 from collections import deque
@@ -18,9 +18,6 @@ from .city_graph import (
 )
 
 
-# Default minimum counts so the resulting city is interesting enough for the
-# other modules to operate on. The CSP will try to satisfy these as soft goals
-# while strictly respecting the hard adjacency / proximity rules.
 DEFAULT_QUOTAS = {
     LOC_HOSPITAL: 2,
     LOC_AMBULANCE_DEPOT: 1,
@@ -31,7 +28,6 @@ DEFAULT_QUOTAS = {
 
 POPULATION_DENSITY_RANGE = (50, 300)  # citizens per residential cell
 
-# Hard-rule hop limits (from the project spec).
 RESIDENTIAL_HOSPITAL_HOPS = 3
 POWERPLANT_INDUSTRIAL_HOPS = 2
 
@@ -55,15 +51,11 @@ class CityLayoutPlanner:
         self.graph = graph
         self.quotas = dict(quotas or DEFAULT_QUOTAS)
         self.rng = random.Random(seed)
-        # Domains are reduced live during search; everything starts wide-open.
         self.domains: Dict[int, Set[str]] = {
             n.id: set(LOCATION_TYPES) | {LOC_EMPTY} for n in graph.all_nodes()
         }
         self._total_backtracks = 0
 
-    # ------------------------------------------------------------------
-    # Public entry point
-    # ------------------------------------------------------------------
 
     def solve(self) -> LayoutResult:
         """Run CSP backtracking; fall back to Min-Conflicts if it fails."""
@@ -76,8 +68,6 @@ class CityLayoutPlanner:
         result = self._backtrack(assignment, iterations=0)
 
         if result is None:
-            # No valid layout - fall back to Min-Conflicts and report which
-            # rule is causing the most pain so the user sees a meaningful error.
             mc_result = self._min_conflicts()
             self._apply(mc_result.assignment)
             self._designate_primary_hospital()
@@ -87,9 +77,6 @@ class CityLayoutPlanner:
         self._designate_primary_hospital()
         return LayoutResult(success=True, assignment=result, iterations=0)
 
-    # ------------------------------------------------------------------
-    # Quota seeding - guarantees the layout has the required mix of types.
-    # ------------------------------------------------------------------
 
     def _seed_quota_assignments(self) -> None:
         """Pre-assign required location types to random empty cells.
@@ -108,13 +95,9 @@ class CityLayoutPlanner:
                 cell = cells[idx]
                 idx += 1
                 self.domains[cell] = {loc_type}
-        # Remaining cells default to Residential or Empty - the CSP picks.
         for cell in cells[idx:]:
             self.domains[cell] = {LOC_RESIDENTIAL, LOC_EMPTY}
 
-    # ------------------------------------------------------------------
-    # AC-3: arc consistency over the local industrial-adjacency constraint.
-    # ------------------------------------------------------------------
 
     def _ac3(self) -> None:
         """Prune values that can never satisfy the industrial-adjacency rule."""
@@ -149,9 +132,6 @@ class CityLayoutPlanner:
             return False
         return True
 
-    # ------------------------------------------------------------------
-    # Backtracking with forward checking.
-    # ------------------------------------------------------------------
 
     def _backtrack(self, assignment: Dict[int, str], iterations: int,
                    max_iterations: int = 5_000) -> Optional[Dict[int, str]]:
@@ -163,7 +143,6 @@ class CityLayoutPlanner:
                 return assignment
             return None
 
-        # MRV: pick the unassigned variable with the smallest remaining domain.
         unassigned = [nid for nid in self.domains if nid not in assignment]
         var = min(unassigned, key=lambda v: len(self.domains[v]))
 
@@ -197,9 +176,6 @@ class CityLayoutPlanner:
                 return False
         return True
 
-    # ------------------------------------------------------------------
-    # Global (non-local) constraint checks via BFS.
-    # ------------------------------------------------------------------
 
     def _global_constraints_ok(self, assignment: Dict[int, str]) -> bool:
         return (
@@ -210,7 +186,6 @@ class CityLayoutPlanner:
     def _residential_within_hospital_hops(self, assignment: Dict[int, str]) -> bool:
         hospitals = [nid for nid, t in assignment.items() if t == LOC_HOSPITAL]
         if not hospitals:
-            # No hospitals at all means any residential placement violates the rule.
             return not any(t == LOC_RESIDENTIAL for t in assignment.values())
         covered = set()
         for h in hospitals:
@@ -249,13 +224,9 @@ class CityLayoutPlanner:
                     queue.append(nbr)
         return distances
 
-    # ------------------------------------------------------------------
-    # Min-Conflicts fallback.
-    # ------------------------------------------------------------------
 
     def _min_conflicts(self, max_steps: int = 1000) -> LayoutResult:
         """When backtracking fails, find the least-violated complete assignment."""
-        # Start from a plausible random assignment that respects type quotas.
         assignment = self._random_seed_assignment()
         best = dict(assignment)
         best_score, _ = self._violation_score(best)
@@ -301,12 +272,10 @@ class CityLayoutPlanner:
                        "residential_hospital_hops": 0,
                        "powerplant_industrial_hops": 0}
 
-        # Rule 1 - industrial adjacency (count once per offending pair).
         for u, v, _ in self.graph.all_edges():
             if not self._adjacency_ok(assignment[u], assignment[v]):
                 rule_counts["industrial_adjacency"] += 1
 
-        # Rule 2 - residential within 3 hops of any hospital.
         hospitals = [nid for nid, t in assignment.items() if t == LOC_HOSPITAL]
         residential_cells = [nid for nid, t in assignment.items() if t == LOC_RESIDENTIAL]
         if hospitals:
@@ -319,7 +288,6 @@ class CityLayoutPlanner:
         else:
             rule_counts["residential_hospital_hops"] = len(residential_cells)
 
-        # Rule 3 - power plant within 2 hops of any industrial zone.
         industrials = [nid for nid, t in assignment.items() if t == LOC_INDUSTRIAL]
         plants = [nid for nid, t in assignment.items() if t == LOC_POWER_PLANT]
         if industrials:
@@ -341,7 +309,6 @@ class CityLayoutPlanner:
                 bad.add(u)
                 bad.add(v)
 
-        # Add residentials too far from any hospital.
         hospitals = [nid for nid, t in assignment.items() if t == LOC_HOSPITAL]
         if hospitals:
             covered = set()
@@ -352,7 +319,6 @@ class CityLayoutPlanner:
                 if t == LOC_RESIDENTIAL and nid not in covered:
                     bad.add(nid)
 
-        # Add power plants too far from any industrial zone.
         industrials = [nid for nid, t in assignment.items() if t == LOC_INDUSTRIAL]
         if industrials:
             covered = set()
@@ -379,9 +345,6 @@ class CityLayoutPlanner:
         assignment[cell] = original
         return best_value
 
-    # ------------------------------------------------------------------
-    # Apply the final assignment to the shared graph.
-    # ------------------------------------------------------------------
 
     def _apply(self, assignment: Dict[int, str]) -> None:
         for nid, loc_type in assignment.items():
@@ -393,7 +356,6 @@ class CityLayoutPlanner:
                 self.graph.set_population_density(nid, self.rng.randint(20, 80))
             else:
                 self.graph.set_population_density(nid, 0)
-        # Cache the depot id for later modules.
         depots = self.graph.nodes_of_type(LOC_AMBULANCE_DEPOT)
         if depots:
             self.graph.ambulance_depot_id = depots[0].id

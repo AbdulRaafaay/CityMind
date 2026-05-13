@@ -1,4 +1,4 @@
-from __future__ import annotations
+﻿from __future__ import annotations
 
 import ctypes
 import platform
@@ -8,9 +8,6 @@ from tkinter import ttk
 from typing import Dict
 
 
-# ----------------------------------------------------------------------
-# Palette
-# ----------------------------------------------------------------------
 
 BG_BASE = "#0b1320"
 BG_PANEL = "#131c2c"
@@ -30,7 +27,6 @@ TEXT_PRIMARY = "#eef3fa"
 TEXT_DIM = "#94a4bd"
 TEXT_FAINT = "#5d6e85"
 
-# Cell type fills - low-contrast tints so the letter codes stay readable.
 TYPE_FILL: Dict[str, str] = {
     "Residential": "#1a2940",
     "Hospital":    "#1f3a4a",
@@ -50,7 +46,6 @@ TYPE_BORDER: Dict[str, str] = {
     "Empty":       "#1c2735",
 }
 
-# Risk heatmap tints.
 RISK_TINT: Dict[str, str] = {
     "Low":    "#15301f",
     "Medium": "#3a2c14",
@@ -58,9 +53,6 @@ RISK_TINT: Dict[str, str] = {
 }
 
 
-# ----------------------------------------------------------------------
-# Fonts (initialised lazily once a Tk root exists - tkfont needs one)
-# ----------------------------------------------------------------------
 
 FONT_TITLE: tkfont.Font  # large heading
 FONT_HEADING: tkfont.Font
@@ -100,16 +92,12 @@ def _pick_font(root: tk.Misc, candidates) -> str:
     return candidates[-1]
 
 
-# ----------------------------------------------------------------------
-# DPI awareness - the single biggest fix for blurry rendering on Windows.
-# ----------------------------------------------------------------------
 
 def enable_dpi_awareness() -> None:
     """Tell Windows we'll handle our own DPI scaling. Call before tk.Tk()."""
     if platform.system() != "Windows":
         return
     try:
-        # Per-monitor v2: best on multi-monitor setups with mixed DPI.
         ctypes.windll.shcore.SetProcessDpiAwareness(2)
         return
     except (AttributeError, OSError):
@@ -128,17 +116,12 @@ def enable_dpi_awareness() -> None:
 def apply_tk_scaling(root: tk.Tk) -> None:
     """Scale Tk's internal point size so widgets honour the current DPI."""
     try:
-        # winfo_fpixels('1i') returns pixels per inch on this monitor.
         dpi = root.winfo_fpixels("1i")
-        # Tk's default scaling is 1.333 (96/72). Adjust for actual DPI.
         root.tk.call("tk", "scaling", dpi / 72.0)
     except Exception:
         pass
 
 
-# ----------------------------------------------------------------------
-# ttk style configuration - the second biggest visual upgrade.
-# ----------------------------------------------------------------------
 
 def setup_styles(root: tk.Tk) -> ttk.Style:
     """Configure ttk widgets to match our dark theme."""
@@ -148,14 +131,12 @@ def setup_styles(root: tk.Tk) -> ttk.Style:
     style.configure(".", background=BG_BASE, foreground=TEXT_PRIMARY,
                     font=FONT_BODY, borderwidth=0, relief="flat")
 
-    # Frames.
     style.configure("App.TFrame", background=BG_BASE)
     style.configure("Panel.TFrame", background=BG_PANEL)
     style.configure("PanelAlt.TFrame", background=BG_PANEL_ALT)
     style.configure("PanelDeep.TFrame", background=BG_PANEL_DEEP)
     style.configure("Card.TFrame", background=BG_PANEL_ALT)
 
-    # Labels.
     style.configure("App.TLabel", background=BG_BASE, foreground=TEXT_PRIMARY,
                     font=FONT_BODY)
     style.configure("Panel.TLabel", background=BG_PANEL, foreground=TEXT_PRIMARY,
@@ -183,7 +164,6 @@ def setup_styles(root: tk.Tk) -> ttk.Style:
     style.configure("Inspector.TLabel", background=BG_PANEL,
                     foreground=TEXT_PRIMARY, font=FONT_SMALL)
 
-    # Buttons - we use these for nav, controls, speed selector.
     style.configure("Nav.TButton", background=BG_PANEL,
                     foreground=TEXT_PRIMARY, font=FONT_BODY,
                     padding=(14, 8), anchor="w", borderwidth=0)
@@ -223,7 +203,6 @@ def setup_styles(root: tk.Tk) -> ttk.Style:
     style.map("SpeedActive.TButton",
               background=[("active", ACCENT_BRIGHT)])
 
-    # Scrollbar.
     style.configure("Vertical.TScrollbar",
                     background=BG_PANEL_ALT,
                     troughcolor=BG_PANEL,
@@ -236,7 +215,6 @@ def setup_styles(root: tk.Tk) -> ttk.Style:
     style.map("Vertical.TScrollbar",
               background=[("active", BG_HOVER), ("pressed", ACCENT_DIM)])
 
-    # Separator.
     style.configure("TSeparator", background=BG_PANEL_DEEP)
 
     return style

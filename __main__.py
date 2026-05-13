@@ -1,4 +1,4 @@
-"""Allow `python -m citymind` to launch the GUI."""
+﻿"""Allow `python -m citymind` to launch the GUI."""
 
 from .ui.app import run_app
 

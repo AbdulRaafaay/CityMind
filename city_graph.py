@@ -1,4 +1,4 @@
-from __future__ import annotations
+﻿from __future__ import annotations
 
 from collections import deque
 from dataclasses import dataclass, field
@@ -7,7 +7,6 @@ from typing import Dict, Iterable, List, Optional, Set, Tuple
 import networkx as nx
 
 
-# Location type tags. Single-letter codes are used in the UI grid.
 LOC_RESIDENTIAL = "Residential"
 LOC_HOSPITAL = "Hospital"
 LOC_SCHOOL = "School"
@@ -35,10 +34,8 @@ LETTER_CODE = {
     LOC_EMPTY: ".",
 }
 
-# Risk-to-cost multipliers from the design document.
 RISK_MULTIPLIER = {"Low": 1.0, "Medium": 1.2, "High": 1.5}
 
-# Edge base costs from the project specification.
 COST_STANDARD = 1.0
 COST_RESIDENTIAL = 0.8
 
@@ -79,14 +76,12 @@ class CityGraph:
     def __init__(self, rows: int = 8, cols: int = 8):
         self.rows = rows
         self.cols = cols
-        # NetworkX undirected graph - we attach our dataclasses as node/edge attrs.
         self.graph = nx.Graph()
         self.nodes: Dict[int, NodeData] = {}
         self.primary_hospital_id: Optional[int] = None
         self.ambulance_depot_id: Optional[int] = None
         self._build_grid()
 
-    # ---------- construction helpers ----------
 
     def _build_grid(self) -> None:
         """Create one node per grid cell and connect 4-neighbours with edges."""
@@ -96,7 +91,6 @@ class CityGraph:
                 self.nodes[node_id] = NodeData(id=node_id, row=r, col=c)
                 self.graph.add_node(node_id)
 
-        # Connect 4-neighbours (right and down only - undirected handles the rest).
         for r in range(self.rows):
             for c in range(self.cols):
                 u = self._cell_id(r, c)
@@ -112,7 +106,6 @@ class CityGraph:
         edge = EdgeData()
         self.graph.add_edge(u, v, data=edge)
 
-    # ---------- node accessors ----------
 
     def node(self, node_id: int) -> NodeData:
         return self.nodes[node_id]
@@ -130,7 +123,6 @@ class CityGraph:
         n = self.nodes[node_id]
         return (n.row, n.col)
 
-    # ---------- edge accessors ----------
 
     def edge(self, u: int, v: int) -> EdgeData:
         return self.graph[u][v]["data"]
@@ -141,12 +133,10 @@ class CityGraph:
     def neighbours(self, node_id: int) -> List[int]:
         return list(self.graph.neighbors(node_id))
 
-    # ---------- mutation: types and costs ----------
 
     def set_node_type(self, node_id: int, loc_type: str) -> None:
         """Assign a location type and refresh costs of every adjacent edge."""
         self.nodes[node_id].type = loc_type
-        # Residential roads have a lower base cost - update both sides.
         for nbr in self.neighbours(node_id):
             edge = self.edge(node_id, nbr)
             edge.base_cost = self._compute_base_cost(node_id, nbr)
@@ -176,7 +166,6 @@ class CityGraph:
         for _, _, edge in self.all_edges():
             edge.blocked = False
 
-    # ---------- cost helpers ----------
 
     def _compute_base_cost(self, u: int, v: int) -> float:
         """Roads through residential zones cost 0.8; everything else costs 1.0."""
@@ -196,7 +185,6 @@ class CityGraph:
             edge.base_cost = self._compute_base_cost(u, v)
             self._refresh_effective_cost(u, v, edge)
 
-    # ---------- traversal helpers shared by several modules ----------
 
     def bfs_hops(self, source: int, max_hops: Optional[int] = None) -> Dict[int, int]:
         """BFS hop counts from source. Treats blocked edges as impassable."""
@@ -228,7 +216,6 @@ class CityGraph:
                     queue.append(nbr)
         return distances
 
-    # ---------- snapshot / debug ----------
 
     def type_grid(self) -> List[List[str]]:
         """Return a rows x cols grid of letter codes - convenient for the UI."""

@@ -1,4 +1,4 @@
-from __future__ import annotations
+﻿from __future__ import annotations
 
 import math
 import tkinter as tk
@@ -25,12 +25,10 @@ class CityGridCanvas(tk.Canvas):
         self.graph = graph
         self.on_cell_click = on_cell_click
 
-        # Overlay flags - the UI flips these via toggle buttons.
         self.show_roads = True
         self.show_coverage = True
         self.show_heatmap = True
 
-        # External state injected by the simulation each tick.
         self.ambulance_positions: List[int] = []
         self.civilians: List[int] = []
         self.medical_team_position: Optional[int] = None
@@ -46,9 +44,6 @@ class CityGridCanvas(tk.Canvas):
         self.bind("<Leave>", self._on_leave)
         self.bind("<Button-1>", self._on_click)
 
-    # ------------------------------------------------------------------
-    # Public toggles & state injection
-    # ------------------------------------------------------------------
 
     def set_overlay(self, name: str, enabled: bool) -> None:
         if name == "roads":
@@ -80,9 +75,6 @@ class CityGridCanvas(tk.Canvas):
             self.current_route = list(current_route)
         self.redraw()
 
-    # ------------------------------------------------------------------
-    # Rendering
-    # ------------------------------------------------------------------
 
     def redraw(self) -> None:
         self.delete("all")
@@ -92,7 +84,6 @@ class CityGridCanvas(tk.Canvas):
         cell_h = (height - CELL_PAD * 2) / self.graph.rows
         self._cell_size = max(MIN_CELL, int(min(cell_w, cell_h)))
 
-        # Recompute centred grid origin so the city sits in the middle of the canvas.
         grid_w = self._cell_size * self.graph.cols
         grid_h = self._cell_size * self.graph.rows
         self._origin_x = (width - grid_w) // 2
@@ -112,7 +103,6 @@ class CityGridCanvas(tk.Canvas):
             fill = theme.TYPE_FILL.get(n.type, theme.BG_PANEL)
             border = theme.TYPE_BORDER.get(n.type, theme.ACCENT_DIM)
             if self.show_heatmap and n.type != LOC_EMPTY:
-                # Subtle risk tint - we blend with the type fill for legibility.
                 fill = theme.RISK_TINT.get(n.crime_risk_level, fill)
             if self._hover_cell == n.id:
                 fill = theme.BG_HOVER
@@ -159,7 +149,6 @@ class CityGridCanvas(tk.Canvas):
                          smooth=False)
 
     def _draw_actors(self) -> None:
-        # Ambulances - amber square markers.
         for amb in self.ambulance_positions:
             cx, cy = self._cell_centre(amb)
             r = self._cell_size * 0.25
@@ -168,14 +157,12 @@ class CityGridCanvas(tk.Canvas):
             self.create_text(cx, cy, text="A", fill=theme.BG_BASE,
                              font=theme.FONT_TINY)
 
-        # Civilians - pulse markers.
         for civ in self.civilians:
             cx, cy = self._cell_centre(civ)
             r = self._cell_size * 0.25
             self.create_oval(cx - r, cy - r, cx + r, cy + r,
                              fill=theme.DANGER, outline=theme.TEXT_PRIMARY)
 
-        # Medical team.
         if self.medical_team_position is not None:
             cx, cy = self._cell_centre(self.medical_team_position)
             r = self._cell_size * 0.35
@@ -185,16 +172,12 @@ class CityGridCanvas(tk.Canvas):
             self.create_text(cx, cy, text="+", fill=theme.BG_BASE,
                              font=theme.FONT_BODY_BOLD)
 
-        # Police - small blue markers.
         for officer in self.police_positions:
             cx, cy = self._cell_centre(officer)
             r = self._cell_size * 0.12
             self.create_oval(cx - r, cy - r, cx + r, cy + r,
                              fill=theme.ACCENT, outline="")
 
-    # ------------------------------------------------------------------
-    # Helpers
-    # ------------------------------------------------------------------
 
     def _cell_bbox(self, row: int, col: int) -> Tuple[int, int, int, int]:
         x0 = self._origin_x + col * self._cell_size
@@ -224,9 +207,6 @@ class CityGridCanvas(tk.Canvas):
         ]
         return self.create_polygon(points, smooth=True, **kwargs)
 
-    # ------------------------------------------------------------------
-    # Mouse handling
-    # ------------------------------------------------------------------
 
     def _on_motion(self, event) -> None:
         node_id = self._cell_at(event.x, event.y)

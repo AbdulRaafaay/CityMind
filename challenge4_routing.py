@@ -1,4 +1,4 @@
-from __future__ import annotations
+﻿from __future__ import annotations
 
 import heapq
 import math
@@ -38,9 +38,6 @@ class EmergencyRouter:
     def __init__(self, graph: CityGraph):
         self.graph = graph
 
-    # ------------------------------------------------------------------
-    # A* over the shared graph
-    # ------------------------------------------------------------------
 
     def a_star(self, source: int, target: int) -> Tuple[List[int], float]:
         """Standard A* using effective_cost. Returns (path, cost) or ([], inf)."""
@@ -84,9 +81,6 @@ class EmergencyRouter:
         path.reverse()
         return path
 
-    # ------------------------------------------------------------------
-    # Multi-civilian routing with Nearest Neighbour ordering
-    # ------------------------------------------------------------------
 
     def route_through(self, start: int, civilians: List[int],
                       block_callback=None) -> RoutingResult:
@@ -104,7 +98,6 @@ class EmergencyRouter:
         while unvisited:
             target = self._nearest_unvisited(position, unvisited)
             if target is None:
-                # Everything left is unreachable.
                 result.unreachable.extend(unvisited)
                 break
 
@@ -134,16 +127,13 @@ class EmergencyRouter:
             here = full_path[idx]
             nxt = full_path[idx + 1]
 
-            # Allow the simulation to flood roads at this step.
             if block_callback is not None:
                 block_callback(here)
 
             edge = self.graph.edge(here, nxt)
             if edge.blocked:
-                # Road flooded right in front of us - replan from `here`.
                 new_path, new_cost = self.a_star(here, target)
                 if not new_path or new_cost == math.inf:
-                    # No way through. The caller treats target as unreachable.
                     return RouteSegment(source=source, target=target,
                                         path=full_path[:idx + 1],
                                         cost=total_cost + math.inf,

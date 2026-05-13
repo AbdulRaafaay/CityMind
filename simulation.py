@@ -1,4 +1,4 @@
-from __future__ import annotations
+﻿from __future__ import annotations
 
 import math
 import random
@@ -57,9 +57,8 @@ class CitySimulation:
         self._listeners: List[Callable[[SimulationEvent], None]] = []
         self._baseline_worst_case: float = math.inf
 
-    # ------------------------------------------------------------------
     # Listener registration so the UI can react to events live.
-    # ------------------------------------------------------------------
+    
 
     def on_event(self, listener: Callable[[SimulationEvent], None]) -> None:
         self._listeners.append(listener)
@@ -73,9 +72,7 @@ class CitySimulation:
             except Exception as exc:
                 print(f"[simulation] listener failed: {exc}")
 
-    # ------------------------------------------------------------------
     # Initialisation - run the four "design-time" modules in order.
-    # ------------------------------------------------------------------
 
     def initialise(self) -> None:
         self.state.step = 0
@@ -133,9 +130,7 @@ class CitySimulation:
                    f"Medical team staged at node {depot_id}. "
                    f"Targets: {self.state.civilians}.")
 
-    # ------------------------------------------------------------------
-    # Per-step behaviour.
-    # ------------------------------------------------------------------
+
 
     def step(self) -> bool:
         """Advance the simulation by one step. Returns True if more steps remain."""
@@ -148,12 +143,10 @@ class CitySimulation:
         # 1. Random edge blocks for this step.
         blocked_now = self._block_random_edges(step)
 
-        # 2. Run/continue the medical-team route. We replan from current
-        #    position toward the next civilian on every step, which gives the
-        #    UI a moving target without complicating the algorithm.
+        # 2. Run/continue the medical-team route.
         self._advance_medical_team()
 
-        # 3. Re-evaluate ambulance coverage if the graph has changed materially.
+        # 3. Re-evaluate ambulance coverage .
         if blocked_now and self._coverage_degraded():
             new_amb = place_ambulances(self.graph, seed=self.seed + step
                                        if self.seed is not None else None)
@@ -178,9 +171,9 @@ class CitySimulation:
             self._emit("finish", "20-step simulation complete.")
         return not self.state.finished
 
-    # ------------------------------------------------------------------
+  
     # Step helpers
-    # ------------------------------------------------------------------
+    
 
     def _block_random_edges(self, step: int) -> bool:
         """Block 0-2 random unblocked, in-use edges this step, and clear old blocks."""

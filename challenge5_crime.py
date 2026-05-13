@@ -1,4 +1,4 @@
-from __future__ import annotations
+﻿from __future__ import annotations
 
 import math
 from collections import deque
@@ -19,14 +19,11 @@ from .city_graph import (
 )
 
 
-# Pipeline configuration.
 NUM_CLUSTERS = 3
 NUM_TREES = 60
 NUM_POLICE = 10
 SYNTHETIC_NOISE = 0.05  # adds light label noise so the RF actually has to learn
 
-# Feature thresholds for synthetic label generation. These reflect the urban
-# criminology heuristic in the design doc: dense + close to industry => high.
 HIGH_DENSITY_THRESHOLD = 0.66  # quantile cutoff after standardisation
 LOW_DENSITY_THRESHOLD = 0.33
 
@@ -50,16 +47,11 @@ class CrimeRiskPipeline:
         self.seed = seed
         self._industrial_distance_cache: Dict[int, int] = {}
 
-    # ------------------------------------------------------------------
-    # Pipeline driver
-    # ------------------------------------------------------------------
 
     def run(self) -> CrimeResult:
         try:
             return self._run_internal()
         except Exception as exc:
-            # ML libraries occasionally raise on degenerate inputs; we don't
-            # want a single bad run to take down the simulation.
             print(f"[challenge5] pipeline failed: {exc}")
             return CrimeResult(cluster_labels={}, risk_levels={})
 
@@ -71,12 +63,10 @@ class CrimeRiskPipeline:
         scaler = StandardScaler()
         scaled = scaler.fit_transform(features)
 
-        # Step 1 - unsupervised clustering.
         kmeans = KMeans(n_clusters=NUM_CLUSTERS, n_init=10, random_state=self.seed)
         cluster_ids = kmeans.fit_predict(scaled)
         cluster_labels = {nid: int(c) for nid, c in zip(node_ids, cluster_ids)}
 
-        # Step 2 - generate synthetic labels and train the supervised model.
         synthetic_labels = self._synthesize_labels(scaled, cluster_ids)
         rf = RandomForestClassifier(n_estimators=NUM_TREES, random_state=self.seed)
         rf.fit(scaled, synthetic_labels)
@@ -85,16 +75,12 @@ class CrimeRiskPipeline:
 
         risk_levels = {nid: str(level) for nid, level in zip(node_ids, predictions)}
 
-        # Apply back to shared graph - this recomputes effective_cost everywhere.
         for nid, level in risk_levels.items():
             self.graph.set_crime_risk(nid, level)
-        # Ensure cells we excluded still have a Low default (they may be empty).
         for n in self.graph.all_nodes():
             if n.id not in risk_levels:
                 self.graph.set_crime_risk(n.id, "Low")
 
-        # Police deployment - top NUM_POLICE risk scores. We use the model's
-        # predicted probability of "High" as the ranking signal.
         police = self._deploy_police(rf, scaled, node_ids)
 
         return CrimeResult(
@@ -105,9 +91,6 @@ class CrimeRiskPipeline:
             cluster_centers=kmeans.cluster_centers_,
         )
 
-    # ------------------------------------------------------------------
-    # Feature engineering
-    # ------------------------------------------------------------------
 
     def _build_feature_matrix(self) -> Tuple[List[int], np.ndarray]:
         """Return (node_ids, [[density, industrial_proximity], ...]).
@@ -133,12 +116,9 @@ class CrimeRiskPipeline:
 
         industrials = [n.id for n in self.graph.all_nodes() if n.type == LOC_INDUSTRIAL]
         if not industrials:
-            # No industrials - report a large constant so RF treats every node uniformly.
             self._industrial_distance_cache[node_id] = 99
             return 99
 
-        # Multi-source BFS from all industrial cells - we only need to compute once
-        # per pipeline run, but the cache is the cheap way to do it.
         if not self._industrial_distance_cache:
             distances: Dict[int, int] = {i: 0 for i in industrials}
             queue: deque = deque(industrials)
@@ -152,9 +132,6 @@ class CrimeRiskPipeline:
                 self._industrial_distance_cache[nid] = d
         return self._industrial_distance_cache.get(node_id, 99)
 
-    # ------------------------------------------------------------------
-    # Synthetic label generation
-    # ------------------------------------------------------------------
 
     def _synthesize_labels(self, scaled: np.ndarray,
                            cluster_ids: np.ndarray) -> np.ndarray:
@@ -168,7 +145,6 @@ class CrimeRiskPipeline:
         rng = np.random.default_rng(self.seed)
         density = scaled[:, 0]
         proximity = scaled[:, 1]
-        # Higher score = more risky.
         risk_score = density - proximity  # subtract because lower proximity = closer
         high_cut = np.quantile(risk_score, HIGH_DENSITY_THRESHOLD)
         low_cut = np.quantile(risk_score, LOW_DENSITY_THRESHOLD)
@@ -182,16 +158,12 @@ class CrimeRiskPipeline:
             else:
                 labels[i] = "Medium"
 
-        # Inject light noise so the model genuinely fits something non-trivial.
         for i in range(len(labels)):
             if rng.random() < SYNTHETIC_NOISE:
                 labels[i] = rng.choice(list(RISK_MULTIPLIER.keys()))
 
         return labels
 
-    # ------------------------------------------------------------------
-    # Police deployment
-    # ------------------------------------------------------------------
 
     def _deploy_police(self, rf: RandomForestClassifier, scaled: np.ndarray,
                        node_ids: List[int]) -> List[int]:
@@ -203,10 +175,8 @@ class CrimeRiskPipeline:
             high_idx = list(rf.classes_).index("High")
             scores = proba[:, high_idx]
         except ValueError:
-            # No "High" class in training data - fall back to first column.
             scores = proba[:, 0]
 
-        # Bias slightly towards residential areas - that's where citizens live.
         for i, nid in enumerate(node_ids):
             if self.graph.node(nid).type == LOC_RESIDENTIAL:
                 scores[i] += 0.05

@@ -1,4 +1,4 @@
-from __future__ import annotations
+﻿from __future__ import annotations
 
 import tkinter as tk
 from tkinter import ttk
@@ -61,12 +61,8 @@ class CityMindApp(tk.Tk):
         self._build_layout()
         self._reset()
 
-    # ------------------------------------------------------------------
-    # Layout
-    # ------------------------------------------------------------------
 
     def _build_layout(self) -> None:
-        # Three-column grid. Top bar spans all columns.
         self.grid_rowconfigure(1, weight=1)
         self.grid_columnconfigure(1, weight=1)
 
@@ -75,14 +71,12 @@ class CityMindApp(tk.Tk):
         self._build_centre()
         self._build_right_panel()
 
-    # ------------------------------- top bar -----------------------------
 
     def _build_top_bar(self) -> None:
         bar = ttk.Frame(self, style="Panel.TFrame", height=64)
         bar.grid(row=0, column=0, columnspan=3, sticky="ew")
         bar.grid_propagate(False)
 
-        # Visual divider under the bar.
         ttk.Separator(self, orient="horizontal").grid(row=0, column=0,
                                                         columnspan=3,
                                                         sticky="sew")
@@ -107,21 +101,18 @@ class CityMindApp(tk.Tk):
                 sep = tk.Frame(bar, bg=theme.BG_PANEL_DEEP, width=1)
                 sep.grid(row=0, column=i, sticky="nse")
 
-    # ------------------------------- left nav ----------------------------
 
     def _build_left_nav(self) -> None:
         nav = ttk.Frame(self, style="Panel.TFrame", width=LEFT_NAV_W)
         nav.grid(row=1, column=0, sticky="ns")
         nav.grid_propagate(False)
 
-        # Brand block.
         brand = ttk.Frame(nav, style="Panel.TFrame", padding=(20, 22, 20, 16))
         brand.pack(fill="x")
         ttk.Label(brand, text="CityMind", style="Brand.TLabel").pack(anchor="w")
         ttk.Label(brand, text="Urban Intelligence System",
                   style="BrandSub.TLabel").pack(anchor="w")
 
-        # Sections.
         self._build_nav_section(nav, "Navigation", [
             ("Dashboard", lambda: self._show_module(0)),
             ("City Overview", lambda: self._show_module(-1)),
@@ -146,7 +137,7 @@ class CityMindApp(tk.Tk):
         health.pack(fill="x", side="bottom", padx=14, pady=14)
         ttk.Label(health, text="SYSTEM HEALTH",
                   style="Caption.PanelAlt.TLabel").pack(anchor="w")
-        self._health_var = tk.StringVar(value="● Nominal")
+        self._health_var = tk.StringVar(value="â— Nominal")
         ttk.Label(health, textvariable=self._health_var,
                   style="PanelAlt.TLabel",
                   foreground=theme.GOOD,
@@ -170,7 +161,6 @@ class CityMindApp(tk.Tk):
             btn.set_active(btn_label == label)
         command()
 
-    # ------------------------------- centre ------------------------------
 
     def _build_centre(self) -> None:
         centre = ttk.Frame(self, style="App.TFrame")
@@ -185,7 +175,6 @@ class CityMindApp(tk.Tk):
                   style="Heading.TLabel",
                   foreground=theme.TEXT_DIM).pack(anchor="w", pady=(2, 0))
 
-        # Overlay toggles.
         toggles = ttk.Frame(centre, style="App.TFrame", padding=(24, 4, 24, 8))
         toggles.grid(row=1, column=0, sticky="ew")
 
@@ -197,14 +186,12 @@ class CityMindApp(tk.Tk):
             t.pack(side="left", padx=(0, 10))
             self._toggle_widgets[key] = t
 
-        # "All Layers" - acts as a master toggle.
         all_layers = PillToggle(toggles, label="All Layers", initial=True,
                                   on_toggle=self._on_all_layers,
                                   width=130)
         all_layers.pack(side="left", padx=(8, 0))
         self._toggle_widgets["all"] = all_layers
 
-        # Canvas card.
         canvas_card = ttk.Frame(centre, style="Card.TFrame")
         canvas_card.grid(row=2, column=0, sticky="nsew", padx=24, pady=(2, 12))
         self.grid_canvas = CityGridCanvas(
@@ -212,7 +199,6 @@ class CityMindApp(tk.Tk):
             on_cell_click=self._on_cell_click)
         self.grid_canvas.pack(fill="both", expand=True, padx=10, pady=10)
 
-        # Legend.
         legend = ttk.Frame(centre, style="App.TFrame", padding=(24, 4, 24, 16))
         legend.grid(row=3, column=0, sticky="ew")
         for loc_type in (LOC_RESIDENTIAL, LOC_HOSPITAL, LOC_SCHOOL,
@@ -220,7 +206,7 @@ class CityMindApp(tk.Tk):
             self._legend_chip(legend, LETTER_CODE[loc_type], loc_type,
                                 colour=theme.TYPE_BORDER[loc_type]).pack(
                                     side="left", padx=(0, 8))
-        self._legend_chip(legend, "—", "Road",
+        self._legend_chip(legend, "â€”", "Road",
                             colour=theme.ACCENT_DIM).pack(side="left",
                                                             padx=(0, 8))
         self._legend_chip(legend, "---", "Blocked Road",
@@ -237,7 +223,6 @@ class CityMindApp(tk.Tk):
                   fg=theme.TEXT_DIM, font=theme.FONT_SMALL).pack(side="left")
         return frame
 
-    # ------------------------------- right panel -------------------------
 
     def _build_right_panel(self) -> None:
         right = ttk.Frame(self, style="Panel.TFrame", width=RIGHT_PANEL_W)
@@ -246,29 +231,27 @@ class CityMindApp(tk.Tk):
         right.grid_rowconfigure(2, weight=1)
         right.grid_columnconfigure(0, weight=1)
 
-        # Header + controls.
         controls_card = ttk.Frame(right, style="Panel.TFrame",
                                     padding=(18, 18, 18, 8))
         controls_card.grid(row=0, column=0, sticky="ew")
         ttk.Label(controls_card, text="SIMULATION CONTROLS",
                   style="Caption.TLabel").pack(anchor="w", pady=(0, 10))
 
-        self._run_btn = ttk.Button(controls_card, text="▶  Run Simulation",
+        self._run_btn = ttk.Button(controls_card, text="â–¶  Run Simulation",
                                      style="Primary.TButton",
                                      command=self._on_run)
         self._run_btn.pack(fill="x", pady=(0, 8))
 
-        self._step_btn = ttk.Button(controls_card, text="⏭  Step Forward",
+        self._step_btn = ttk.Button(controls_card, text="â­  Step Forward",
                                       style="Secondary.TButton",
                                       command=self._on_step)
         self._step_btn.pack(fill="x", pady=(0, 8))
 
-        self._reset_btn = ttk.Button(controls_card, text="↻  Reset",
+        self._reset_btn = ttk.Button(controls_card, text="â†»  Reset",
                                        style="Secondary.TButton",
                                        command=self._reset)
         self._reset_btn.pack(fill="x", pady=(0, 4))
 
-        # Speed selector.
         speed_card = ttk.Frame(right, style="Panel.TFrame",
                                  padding=(18, 8, 18, 14))
         speed_card.grid(row=1, column=0, sticky="ew")
@@ -285,11 +268,9 @@ class CityMindApp(tk.Tk):
             self._speed_buttons[label] = btn
         self._highlight_speed(DEFAULT_SPEED)
 
-        # Event log.
         self.event_log = EventLogPanel(right)
         self.event_log.grid(row=2, column=0, sticky="nsew", padx=14, pady=8)
 
-        # Active alerts.
         alerts = ttk.Frame(right, style="PanelAlt.TFrame",
                             padding=(16, 12, 16, 12))
         alerts.grid(row=3, column=0, sticky="ew", padx=14, pady=(0, 8))
@@ -303,7 +284,6 @@ class CityMindApp(tk.Tk):
                   font=theme.FONT_SMALL,
                   wraplength=300, justify="left").pack(anchor="w", fill="x")
 
-        # Inspector.
         inspector = ttk.Frame(right, style="Panel.TFrame",
                                 padding=(16, 12, 16, 14))
         inspector.grid(row=4, column=0, sticky="ew", padx=14, pady=(0, 14))
@@ -314,9 +294,6 @@ class CityMindApp(tk.Tk):
                   style="Inspector.TLabel",
                   wraplength=300, justify="left").pack(anchor="w", fill="x")
 
-    # ------------------------------------------------------------------
-    # Sim lifecycle
-    # ------------------------------------------------------------------
 
     def _fresh_graph(self) -> CityGraph:
         graph, sim = build_simulation(rows=DEFAULT_GRID, cols=DEFAULT_GRID)
@@ -342,7 +319,6 @@ class CityMindApp(tk.Tk):
         self._refresh_status_bar()
 
     def _on_event(self, event: SimulationEvent) -> None:
-        # Marshal to Tk thread to avoid race conditions.
         self.after(0, lambda: self._handle_event(event))
 
     def _handle_event(self, event: SimulationEvent) -> None:
@@ -354,8 +330,8 @@ class CityMindApp(tk.Tk):
         if self.simulation is None or self.simulation.state.finished:
             return
         self._auto_running = not self._auto_running
-        self._run_btn.configure(text="❚❚  Pause" if self._auto_running
-                                else "▶  Run Simulation")
+        self._run_btn.configure(text="âšâš  Pause" if self._auto_running
+                                else "â–¶  Run Simulation")
         if self._auto_running:
             self._tick()
 
@@ -368,7 +344,7 @@ class CityMindApp(tk.Tk):
             self._refresh_status_bar()
         if self.simulation.state.finished:
             self._auto_running = False
-            self._run_btn.configure(text="▶  Run Simulation")
+            self._run_btn.configure(text="â–¶  Run Simulation")
             return
         delay = SPEED_DELAYS[self._speed]
         self._after_id = self.after(delay, self._tick)
@@ -389,7 +365,7 @@ class CityMindApp(tk.Tk):
                 pass
             self._after_id = None
         if hasattr(self, "_run_btn"):
-            self._run_btn.configure(text="▶  Run Simulation")
+            self._run_btn.configure(text="â–¶  Run Simulation")
 
     def _set_speed(self, label: str) -> None:
         self._speed = label
@@ -400,13 +376,9 @@ class CityMindApp(tk.Tk):
             btn.configure(style="SpeedActive.TButton" if name == label
                           else "Speed.TButton")
 
-    # ------------------------------------------------------------------
-    # Toggles
-    # ------------------------------------------------------------------
 
     def _on_toggle(self, key: str, value: bool) -> None:
         self.grid_canvas.set_overlay(key, value)
-        # Sync the master "All Layers" pill to reflect the combined state.
         master = self._toggle_widgets.get("all")
         if master is not None:
             individual = ("roads", "coverage", "heatmap")
@@ -417,9 +389,6 @@ class CityMindApp(tk.Tk):
             self._toggle_widgets[k].set(value)
         self.grid_canvas.set_overlay("all", value)
 
-    # ------------------------------------------------------------------
-    # Canvas / status sync
-    # ------------------------------------------------------------------
 
     def _sync_canvas_state(self) -> None:
         if self.simulation is None:
@@ -487,9 +456,6 @@ class CityMindApp(tk.Tk):
             self._alert_var.set(f"{active_alerts} road(s) flooded. "
                                 f"Dynamic router replanning.")
 
-    # ------------------------------------------------------------------
-    # Misc helpers
-    # ------------------------------------------------------------------
 
     def _show_module(self, idx: int) -> None:
         descriptions = {

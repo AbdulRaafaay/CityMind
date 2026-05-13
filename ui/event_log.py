@@ -1,4 +1,4 @@
-from __future__ import annotations
+﻿from __future__ import annotations
 
 import tkinter as tk
 from tkinter import ttk
@@ -33,9 +33,6 @@ class EventLogPanel(tk.Frame):
 
         self._entries: List[tk.Frame] = []
 
-    # ------------------------------------------------------------------
-    # Public API
-    # ------------------------------------------------------------------
 
     def add_event(self, event: SimulationEvent) -> None:
         bullet_colour = theme.ACCENT
@@ -51,7 +48,6 @@ class EventLogPanel(tk.Frame):
                         highlightthickness=0, bd=0)
         row.pack(fill="x", padx=4, pady=2)
 
-        # Coloured accent strip on the left edge.
         tk.Frame(row, bg=bullet_colour, width=3).pack(side="left", fill="y")
 
         inner = tk.Frame(row, bg=theme.BG_PANEL_ALT,
@@ -64,7 +60,7 @@ class EventLogPanel(tk.Frame):
         step_text = f"STEP {event.step:02d}" if event.step > 0 else "INIT"
         tk.Label(head, text=step_text, bg=theme.BG_PANEL_ALT,
                   fg=bullet_colour, font=theme.FONT_TINY).pack(side="left")
-        tk.Label(head, text=f"  ·  {event.kind}",
+        tk.Label(head, text=f"  Â·  {event.kind}",
                   bg=theme.BG_PANEL_ALT, fg=theme.TEXT_FAINT,
                   font=theme.FONT_TINY).pack(side="left")
 
@@ -76,7 +72,6 @@ class EventLogPanel(tk.Frame):
         self._entries.append(row)
         self._scroller.scroll_to_bottom()
 
-        # Subtle fade so a new entry feels alive without being noisy.
         self._fade_row(body, theme.ACCENT_BRIGHT, text_colour)
 
     def clear(self) -> None:
@@ -84,9 +79,6 @@ class EventLogPanel(tk.Frame):
             row.destroy()
         self._entries.clear()
 
-    # ------------------------------------------------------------------
-    # Internals
-    # ------------------------------------------------------------------
 
     def _fade_row(self, label: tk.Label, start_colour: str,
                    end_colour: str, step: int = 0) -> None:

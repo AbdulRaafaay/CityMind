@@ -1,4 +1,4 @@
-from __future__ import annotations
+﻿from __future__ import annotations
 
 import tkinter as tk
 from tkinter import ttk
@@ -39,7 +39,6 @@ class PillToggle(tk.Frame):
                         ("<Button-1>", self._on_click)]:
             self._canvas.bind(evt, fn)
 
-    # ---- public API ----
 
     def set(self, value: bool) -> None:
         self._state = bool(value)
@@ -48,7 +47,6 @@ class PillToggle(tk.Frame):
     def get(self) -> bool:
         return self._state
 
-    # ---- rendering ----
 
     def _draw(self) -> None:
         self._canvas.delete("all")
@@ -72,7 +70,6 @@ class PillToggle(tk.Frame):
 
     def _round_rect(self, x0, y0, x1, y1, radius=8, fill=theme.BG_PANEL,
                      outline=theme.ACCENT_DIM, width=1):
-        # Approximate rounded rectangle via a smoothed polygon.
         points = [
             x0 + radius, y0,
             x1 - radius, y0,
@@ -91,7 +88,6 @@ class PillToggle(tk.Frame):
                                              fill=fill, outline=outline,
                                              width=width)
 
-    # ---- event handlers ----
 
     def _on_enter(self, _event) -> None:
         self._hover = True
@@ -192,7 +188,6 @@ class ScrollableFrame(tk.Frame):
         self.body.bind("<Configure>", self._on_body_configure)
         self._canvas.bind("<Configure>", self._on_canvas_configure)
 
-        # Mouse-wheel support (Windows + Linux).
         self.bind_all("<MouseWheel>", self._on_mousewheel, add=True)
 
     def scroll_to_bottom(self) -> None:
@@ -206,7 +201,6 @@ class ScrollableFrame(tk.Frame):
         self._canvas.itemconfigure(self._window, width=event.width)
 
     def _on_mousewheel(self, event) -> None:
-        # Only react if the cursor is over this canvas.
         widget = self.winfo_containing(event.x_root, event.y_root)
         w = widget
         while w is not None:
