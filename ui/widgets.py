@@ -1,5 +1,3 @@
-"""Custom widgets - pill toggle, hoverable nav button, scroll frame."""
-
 from __future__ import annotations
 
 import tkinter as tk

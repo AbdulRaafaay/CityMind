@@ -1,14 +1,3 @@
-"""City grid canvas with overlay rendering.
-
-Draws the shared CityGraph on a Tk Canvas. Supports four overlays:
-    - Road Network: edges between connected nodes (solid for active, dashed for blocked)
-    - Ambulance Coverage: dashed circles around each ambulance position
-    - Crime Heatmap: cells tinted by risk level
-    - All Layers: all of the above
-Any of these can be toggled independently. The canvas auto-scales to its
-parent container.
-"""
-
 from __future__ import annotations
 
 import math

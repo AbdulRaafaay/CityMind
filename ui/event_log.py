@@ -1,11 +1,3 @@
-"""Live event log panel.
-
-Each entry shows step number + a short message. Alerts (kind="flood",
-"warning") are rendered with an amber bullet, success-y kinds (rescue,
-finish) with green. The log auto-scrolls to the latest entry and supports a
-short colour fade-in so the eye lands on the most recent event.
-"""
-
 from __future__ import annotations
 
 import tkinter as tk

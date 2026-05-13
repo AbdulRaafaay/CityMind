@@ -1,16 +1,3 @@
-"""Challenge 3: Ambulance Placement.
-
-Pick three node positions for the city's ambulances so that the worst-case
-response time to any residential cell is minimised. Worst-case = the maximum
-shortest-path distance (graph-based, using effective edge cost) from a
-residential cell to its closest ambulance.
-
-We use a Genetic Algorithm because the search space C(N, 3) grows quickly
-with grid size and the problem is naturally minimax. Each chromosome is a
-tuple of three node IDs; fitness is computed by running Dijkstra from each
-ambulance position and taking max over residentials of min over ambulances.
-"""
-
 from __future__ import annotations
 
 import math

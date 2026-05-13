@@ -1,15 +1,3 @@
-"""Challenge 1: City Layout Planning.
-
-CSP solver that assigns a location type to every grid cell while respecting:
- 1. Industrial zones cannot be adjacent (4-neighbour) to schools or hospitals.
- 2. Every residential cell must be within 3 road hops of at least one hospital.
- 3. Every power plant must be within 2 road hops of at least one industrial zone.
-
-Approach: AC-3 domain pruning, then backtracking with forward checking. If no
-valid assignment is found, fall back to Min-Conflicts on a complete (but
-possibly invalid) random assignment and report which rule is most violated.
-"""
-
 from __future__ import annotations
 
 import random

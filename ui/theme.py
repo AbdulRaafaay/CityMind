@@ -1,10 +1,3 @@
-"""Theme system: palette, fonts, ttk style configuration, and DPI awareness.
-
-Imported once at app startup. Call `enable_dpi_awareness()` BEFORE creating the
-Tk root, and `setup_styles(root)` AFTER. This guarantees crisp text on
-high-DPI monitors and a consistent dark theme for every ttk widget.
-"""
-
 from __future__ import annotations
 
 import ctypes

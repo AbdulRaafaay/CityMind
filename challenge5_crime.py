@@ -1,22 +1,3 @@
-"""Challenge 5: Crime Risk Prediction and Integration.
-
-Two-stage ML pipeline:
- 1. K-Means (unsupervised) clusters neighbourhoods by [population_density,
-    industrial_proximity]. Features are standardised first so density does
-    not dominate proximity numerically.
- 2. Random Forest (supervised) is trained on synthetic labels: dense and
-    industrial-adjacent areas are tagged High, low/quiet areas Low,
-    everything else Medium. The trained model then assigns High/Medium/Low
-    to every node in the graph.
-
-The predicted risk levels are written back into the shared graph, which
-recomputes effective_cost on every incident edge using the multipliers from
-the design doc (High 1.5x, Medium 1.2x, Low 1.0x, max of two endpoints).
-
-Police deployment: the city has 10 officers. We place them at the 10 nodes
-with the highest predicted risk score, breaking ties by population density.
-"""
-
 from __future__ import annotations
 
 import math

@@ -1,20 +1,3 @@
-"""Challenge 4: Emergency Routing Under Changing Conditions.
-
-A medical team must reach a sequence of trapped civilians. Roads may flood
-mid-journey, in which case the team has to recompute the optimal route on
-the spot.
-
-Algorithm choice:
- - A* on the shared graph with `effective_cost` as edge weight.
- - Heuristic: Manhattan distance x 0.8. The 0.8 scale keeps the heuristic
-   admissible because the cheapest possible edge is 0.8 (residential road).
-   Any path of k hops costs >= 0.8 * k, so 0.8 * Manhattan never overestimates.
- - Visit ordering across multiple civilians: Nearest Neighbour. This is a
-   simple TSP heuristic that picks the closest unvisited civilian each step.
- - On a road block during travel, A* is re-run from the team's current
-   position with the updated graph.
-"""
-
 from __future__ import annotations
 
 import heapq

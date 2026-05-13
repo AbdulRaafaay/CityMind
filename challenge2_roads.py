@@ -1,19 +1,3 @@
-"""Challenge 2: Road Network Optimization.
-
-Out of every grid edge, choose a subset that:
- 1. Connects all populated locations with the lowest total cost (MST goal),
- 2. Provides at least two completely edge-disjoint routes between the Primary
-    Hospital and the Ambulance Depot (safety requirement).
-
-We solve (1) with Kruskal's algorithm. We then iteratively add the next-cheapest
-unused edge until a max-flow check (unit capacity per edge) between Hospital
-and Depot returns >=2, which is exactly Menger's theorem - the existence of
-two edge-disjoint paths.
-
-In our model "building" a road = clearing the `blocked` flag. The grid graph
-already exists; we just decide which of its edges are usable.
-"""
-
 from __future__ import annotations
 
 from dataclasses import dataclass

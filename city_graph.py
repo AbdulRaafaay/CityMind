@@ -1,10 +1,3 @@
-"""Shared CityGraph - the single source of truth for the entire CityMind system.
-
-Every challenge module operates on the same CityGraph instance by reference. There
-are no copies. A write to a node or edge here is immediately visible to every
-reader without any synchronization layer.
-"""
-
 from __future__ import annotations
 
 from collections import deque

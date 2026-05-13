@@ -1,14 +1,3 @@
-"""Main CityMind application window.
-
-Lays out the wireframe faithfully:
-    - Top bar (status strip)
-    - Left navigation panel
-    - Centre city map with overlay toggles + legend
-    - Right controls + event log + active alerts
-DPI-aware on Windows, ttk-styled throughout for crisp text and consistent
-hover behaviour.
-"""
-
 from __future__ import annotations
 
 import tkinter as tk

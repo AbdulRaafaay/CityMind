@@ -1,18 +1,3 @@
-"""20-step CityMind simulation orchestrator.
-
-This module wires the five challenges together against the shared CityGraph.
-The UI calls into here for each step; the simulation never owns its own copy
-of any module's results - every change flows through the graph.
-
-Per-step behaviour (matches design doc):
- 1. Block 0-2 random edges to simulate flooding events.
- 2. Run dynamic A* re-planning for the medical team if its path is hit.
- 3. If ambulance coverage degrades significantly, re-run the GA.
- 4. Every CRIME_REFRESH_INTERVAL steps, re-run the ML pipeline so risk
-    multipliers respond to the current environment.
- 5. Append a human-readable entry to the event log for every action taken.
-"""
-
 from __future__ import annotations
 
 import math

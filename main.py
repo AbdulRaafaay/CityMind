@@ -1,10 +1,3 @@
-"""Command-line entry point: launch the CityMind GUI.
-
-Works two ways:
-    python main.py              (run from inside the citymind folder)
-    python -m citymind          (run from the parent folder)
-"""
-
 from __future__ import annotations
 
 import os
